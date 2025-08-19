@@ -14,7 +14,7 @@ Typed **async** Python SDK for a Blnk-style ledger & reconciliation API.
 
 ### From source (editable)
 ```bash
-pip install -e .[dev]
+pip install blnk-py
 ```
 
 ### From wheel/sdist
@@ -114,5 +114,3 @@ client = AsyncBlnkClient(api_key="test", http=InAppAsyncHttp(cfg, app, base_pref
 Pre-release (alpha) tags: `0.2.0aN`. API may evolve—pin to a version in production.
 
 ## License
-
-MIT
