@@ -1,0 +1,55 @@
+name: Publish to PyPI
+
+on:
+  push:
+    tags:
+      - 'v*'   # e.g., v0.2.1, v0.2.2a1
+
+jobs:
+  build-and-publish-pypi:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write          # ← OIDC
+      contents: read
+    environment: pypi
+    defaults:
+      run:
+        working-directory: blnk_async_py
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0       # needed so hatch-vcs can see the tag
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install build tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build hatchling hatch-vcs
+
+      # Optional: sanity check that pyproject static version matches tag if not using hatch-vcs
+      - name: Ensure version matches tag (only if you keep static version)
+        if: false  # set to true if you are not using hatch-vcs
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          PY_VER=$(python - <<'PY'
+          import re, pathlib
+          txt = pathlib.Path('pyproject.toml').read_text()
+          m = re.search(r'(?m)^\s*version\s*=\s*"([^"]+)"', txt)
+          print(m.group(1) if m else "")
+          PY
+          )
+          if [ -n "$PY_VER" ] && [ "$PY_VER" != "$TAG" ]; then
+            echo "Version $PY_VER != tag $TAG"; exit 1
+          fi
+
+      - name: Build sdist + wheel
+        run: python -m build
+
+      - name: Publish to PyPI (Trusted Publishing)
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: blnk_async_py/dist
