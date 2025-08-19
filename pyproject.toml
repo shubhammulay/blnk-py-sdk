@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "blnk-py"
-version = "0.2.0a3"
+version = "0.2.0a4"
 description = "Async Python SDK for the Blnk ledger & reconciliation API (typed, Pydantic)"
 readme = "README.md"
 requires-python = ">=3.9"
